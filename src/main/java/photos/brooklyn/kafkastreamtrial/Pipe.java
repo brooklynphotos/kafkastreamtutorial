@@ -39,12 +39,19 @@ public class Pipe {
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, Serdes.String().getClass());
 
+        // builds the topology of the connected nodes
         final StreamsBuilder builder = new StreamsBuilder();
 
+        // describe streaming from the input topic to the output topic
         builder.stream("streams-plaintext-input").to("streams-pipe-output");
 
+        // created the topology
         final Topology topology = builder.build();
+        // describe it
+        System.out.println(topology.describe());
+        // now we can connect the topology and the props for the kafka stream
         final KafkaStreams streams = new KafkaStreams(topology, props);
+        // latch used later to block the application from stopping until it counts down to zero
         final CountDownLatch latch = new CountDownLatch(1);
 
         // attach shutdown handler to catch control-c
